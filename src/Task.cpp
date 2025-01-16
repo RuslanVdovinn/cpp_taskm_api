@@ -30,13 +30,6 @@ private:
         }
     }
 
-    static Priority stringToPriority(const std::string &str) {
-        if (str == "Low") return Priority::LOW;
-        if (str == "Middle") return Priority::MIDDLE;
-        if (str == "High") return Priority::HIGH;
-        throw std::invalid_argument("Invalid priority string");
-    }
-
 public:
     Task() : name("Untitled"), priority(Priority::LOW), hours(0), isActive(false),
              start(std::chrono::system_clock::now()) {}
@@ -61,6 +54,13 @@ public:
                 {"hours",    hours},
                 {"isActive", isActive},
                 {"start",    time}};
+    }
+
+    static Priority stringToPriority(const std::string &str) {
+        if (str == "Low") return Priority::LOW;
+        if (str == "Middle") return Priority::MIDDLE;
+        if (str == "High") return Priority::HIGH;
+        throw std::invalid_argument("Invalid priority string");
     }
 
     void fromJson(const nlohmann::json &j) {
@@ -108,11 +108,18 @@ public:
     std::string toString() const {
         std::ostringstream oss;
         auto timeT = std::chrono::system_clock::to_time_t(start);
+std::tm tm;
+
+#if defined(_WIN32)
+localtime_s(&tm, &timeT);
+#else
+localtime_r(&timeT, &tm);
+#endif
         oss << "Task: " << name << "\n"
             << "Priority: " << priorityToString(priority) << "\n"
             << "Hours: " << hours << "\n"
             << "Active: " << (isActive ? "Yes" : "No") << "\n"
-            << "Start: " << std::put_time(std::localtime(&timeT), "%Y-%m-%d %H:%M:%S") << "\n";
+            << "Start: " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << "\n";
         return oss.str();
     }
 };

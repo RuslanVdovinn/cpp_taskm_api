@@ -22,7 +22,7 @@ public:
 
     ~TaskManager() {
         if (!vector.empty()) {
-            std::fstream file("data.json");
+            std::ofstream file("data.json", std::ios::out, std::ios::trunc);
             nlohmann::json jsonData;
             for (const Task &task : vector) {
                 jsonData.push_back(task.toJson());
@@ -37,10 +37,8 @@ public:
         std::sort(vector.begin(), vector.end(), [](const Task &l, const Task &r) { return l < r; });
     }
 
-    void getAllTask(std::ostream &ostream) {
-        for (const Task &task : vector) {
-            ostream << task.toString() << "\n";
-        }
+    const std::vector<Task> getAllTask() const {
+        return vector;
     }
 
     void taskCompleted(size_t taskId) {
