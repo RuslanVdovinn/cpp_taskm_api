@@ -108,8 +108,8 @@ public:
     std::string toString() const {
         std::ostringstream oss;
         auto timeT = std::chrono::system_clock::to_time_t(start);
+        
 std::tm tm;
-
 #if defined(_WIN32)
 localtime_s(&tm, &timeT);
 #else

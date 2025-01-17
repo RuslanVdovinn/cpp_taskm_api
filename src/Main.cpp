@@ -12,7 +12,7 @@ int main() {
     CROW_ROUTE(app, "/tasks")([&manager]() {
         nlohmann::json response;
         for (const auto& task : manager.getAllTask()) {
-            response.push_back(task.toJson());
+            response.push_back(task->toJson());
         }
         return crow::response(response.dump());
     });
