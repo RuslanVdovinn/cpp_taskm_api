@@ -36,8 +36,16 @@ class TaskManager {
     void addTask(std::string &&name, Priority priority, int hours) {
         TaskPtr task = std::make_unique<Task>(name, priority, hours, true);
         vector.push_back(std::move(task));
-        std::sort(vector.begin(), vector.end(),
-                  [](const TaskPtr &l, const TaskPtr &r) { return *l < *r; });
+        // if (vector.size() > 1) {
+        //     std::sort(
+        //         vector.begin(), vector.end(),
+        //         [](const TaskPtr &l, const TaskPtr &r) {
+        //             if (!l || !r) {
+        //                 throw std::runtime_error("Null pointer in sorting");
+        //             }
+        //             return *l < *r;
+        //         });
+        // }
     }
 
     const std::vector<TaskPtr> &getAllTask() const { return vector; }
