@@ -1,14 +1,14 @@
 #include <fstream>
 #include <memory>
+
 #include "Task.cpp"
 
 class TaskManager {
-private:
+   private:
     using TaskPtr = std::unique_ptr<Task>;
     std::vector<TaskPtr> vector;
 
-public:
-
+   public:
     TaskManager() {
         std::fstream file("data.json");
         if (file.is_open()) {
@@ -36,12 +36,11 @@ public:
     void addTask(std::string &&name, Priority priority, int hours) {
         TaskPtr task = std::make_unique<Task>(name, priority, hours, true);
         vector.push_back(std::move(task));
-        std::sort(vector.begin(), vector.end(), [](const TaskPtr& l, const TaskPtr& r) { return *l < *r; });
+        std::sort(vector.begin(), vector.end(),
+                  [](const TaskPtr &l, const TaskPtr &r) { return *l < *r; });
     }
 
-    const std::vector<TaskPtr>& getAllTask() const {
-        return vector;
-    }
+    const std::vector<TaskPtr> &getAllTask() const { return vector; }
 
     void taskCompleted(size_t taskId) {
         if (taskId < vector.size()) {

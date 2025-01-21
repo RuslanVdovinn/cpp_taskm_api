@@ -1,16 +1,13 @@
-#include <string>
-#include <stdexcept>
 #include <chrono>
+#include <stdexcept>
+#include <string>
+
 #include "nlohmann/json.hpp"
 
-enum class Priority {
-    LOW,
-    MIDDLE,
-    HIGH
-};
+enum class Priority { LOW, MIDDLE, HIGH };
 
 class Task {
-private:
+   private:
     std::string name;
     Priority priority;
     int hours;
@@ -30,15 +27,19 @@ private:
         }
     }
 
-public:
-    Task() : name("Untitled"), priority(Priority::LOW), hours(0), isActive(false),
-             start(std::chrono::system_clock::now()) {}
+   public:
+    Task()
+        : name("Untitled"),
+          priority(Priority::LOW),
+          hours(0),
+          isActive(false),
+          start(std::chrono::system_clock::now()) {}
 
-    Task(std::string name, Priority priority, int hours, bool isActive) :
-            name(std::move(name)),
-            priority(priority),
-            isActive(isActive),
-            start(std::chrono::system_clock::now()) {
+    Task(std::string name, Priority priority, int hours, bool isActive)
+        : name(std::move(name)),
+          priority(priority),
+          isActive(isActive),
+          start(std::chrono::system_clock::now()) {
         if (hours < 0) {
             throw std::invalid_argument("Hours cannot be negative");
         }
@@ -48,12 +49,14 @@ public:
     ~Task() = default;
 
     nlohmann::json toJson() const {
-        auto time = std::chrono::duration_cast<std::chrono::seconds>(start.time_since_epoch()).count();
-        return {{"name",     name},
+        auto time = std::chrono::duration_cast<std::chrono::seconds>(
+                        start.time_since_epoch())
+                        .count();
+        return {{"name", name},
                 {"priority", priorityToString(priority)},
-                {"hours",    hours},
+                {"hours", hours},
                 {"isActive", isActive},
-                {"start",    time}};
+                {"start", time}};
     }
 
     static Priority stringToPriority(const std::string &str) {
@@ -68,16 +71,15 @@ public:
         priority = stringToPriority(j.at("priority").get<std::string>());
         hours = j.at("hours").get<int>();
         isActive = j.at("isActive").get<bool>();
-        start = std::chrono::system_clock::time_point(std::chrono::seconds(j.at("start").get<long long>()));
+        start = std::chrono::system_clock::time_point(
+            std::chrono::seconds(j.at("start").get<long long>()));
     }
 
     void setStartTime(const std::chrono::system_clock::time_point &time) {
         start = time;
     }
 
-    std::chrono::system_clock::time_point getStartTime() const {
-        return start;
-    }
+    std::chrono::system_clock::time_point getStartTime() const { return start; }
 
     bool operator<(const Task &other) const {
         if (priority != other.priority) return priority < other.priority;
@@ -108,12 +110,12 @@ public:
     std::string toString() const {
         std::ostringstream oss;
         auto timeT = std::chrono::system_clock::to_time_t(start);
-        
-std::tm tm;
+
+        std::tm tm;
 #if defined(_WIN32)
-localtime_s(&tm, &timeT);
+        localtime_s(&tm, &timeT);
 #else
-localtime_r(&timeT, &tm);
+        localtime_r(&timeT, &tm);
 #endif
         oss << "Task: " << name << "\n"
             << "Priority: " << priorityToString(priority) << "\n"
