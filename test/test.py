@@ -11,7 +11,7 @@ def make_request(data):
         return {"error": str(e)}
     
 def test_requests_multithreaded():
-    payloads = [{'name': f'Task {i}', 'priority': 'High', 'hours': i} for i in range(1, 2000)]
+    payloads = [{'name': f'Task {i}', 'priority': 'High', 'hours': i} for i in range(1, 20000)]
 
     results = []
 

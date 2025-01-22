@@ -1,5 +1,6 @@
 #include <fstream>
 #include <memory>
+#include <shared_mutex>
 
 #include "Task.cpp"
 
@@ -7,6 +8,7 @@ class TaskManager {
    private:
     using TaskPtr = std::unique_ptr<Task>;
     std::vector<TaskPtr> vector;
+    mutable std::shared_mutex mtx;
 
    public:
     TaskManager() {
@@ -34,23 +36,28 @@ class TaskManager {
     }
 
     void addTask(std::string &&name, Priority priority, int hours) {
+        std::lock_guard<std::shared_mutex> lock(mtx);
         TaskPtr task = std::make_unique<Task>(name, priority, hours, true);
         vector.push_back(std::move(task));
-        // if (vector.size() > 1) {
-        //     std::sort(
-        //         vector.begin(), vector.end(),
-        //         [](const TaskPtr &l, const TaskPtr &r) {
-        //             if (!l || !r) {
-        //                 throw std::runtime_error("Null pointer in sorting");
-        //             }
-        //             return *l < *r;
-        //         });
-        // }
+        if (vector.size() > 1) {
+            std::sort(
+                vector.begin(), vector.end(),
+                [](const TaskPtr &l, const TaskPtr &r) {
+                    if (!l || !r) {
+                        throw std::runtime_error("Null pointer in sorting");
+                    }
+                    return *l < *r;
+                });
+        }
     }
 
-    const std::vector<TaskPtr> &getAllTask() const { return vector; }
+    const std::vector<TaskPtr> &getAllTask() const {
+        std::lock_guard<std::shared_mutex> lock(mtx);
+        return vector;
+    }
 
     void taskCompleted(size_t taskId) {
+        std::lock_guard<std::shared_mutex> lock(mtx);
         if (taskId < vector.size()) {
             vector.at(taskId)->setIsActive(false);
         } else {
@@ -59,6 +66,7 @@ class TaskManager {
     }
 
     void deleteTask(size_t taskId) {
+        std::lock_guard<std::shared_mutex> lock(mtx);
         if (taskId < vector.size()) {
             vector.erase(vector.begin() + taskId);
         } else {
